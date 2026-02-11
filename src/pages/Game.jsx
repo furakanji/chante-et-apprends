@@ -18,6 +18,7 @@ const Game = () => {
     const [score, setScore] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
     const [hasValidated, setHasValidated] = useState(false);
+    const [selectedWord, setSelectedWord] = useState(null); // For Context Modal
 
     // Challenge Mode State
     const challengeScore = searchParams.get('score');
@@ -27,7 +28,8 @@ const Game = () => {
     useEffect(() => {
         const data = getSongData(id);
         setSong(data);
-        const initialLyrics = generateBlanks(data.lyrics, data.level);
+        // Pass vocabulary to generator
+        const initialLyrics = generateBlanks(data.lyrics, data.level, data.vocabulary);
 
         const lyricsWithState = initialLyrics.map(line => ({
             ...line,
@@ -252,6 +254,38 @@ const Game = () => {
                                         <Share2 size={18} /> Share
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+                    {/* Context Modal Overlay */}
+                    {selectedWord && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setSelectedWord(null)}>
+                            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full animate-pop border-4 border-bubble-200" onClick={e => e.stopPropagation()}>
+                                <div className="flex justify-between items-start mb-4">
+                                    <h3 className="text-2xl font-bold text-bubble-800 capitalize">{selectedWord.word}</h3>
+                                    <button onClick={() => setSelectedWord(null)} className="text-gray-400 hover:text-gray-600">
+                                        <XCircle size={24} />
+                                    </button>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="bg-bubble-50 p-3 rounded-xl border border-bubble-100">
+                                        <span className="text-xs font-bold text-bubble-400 uppercase tracking-wider block mb-1">Translation</span>
+                                        <p className="text-lg text-gray-800 font-medium">{selectedWord.translation}</p>
+                                    </div>
+
+                                    <div className="bg-accent-yellow/10 p-3 rounded-xl border border-accent-yellow/20">
+                                        <span className="text-xs font-bold text-yellow-600 uppercase tracking-wider block mb-1">Context</span>
+                                        <p className="text-gray-700 italic">{selectedWord.context}</p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => setSelectedWord(null)}
+                                    className="w-full mt-6 py-2 bg-bubble-500 hover:bg-bubble-600 text-white font-bold rounded-xl transition-colors"
+                                >
+                                    Got it!
+                                </button>
                             </div>
                         </div>
                     )}
