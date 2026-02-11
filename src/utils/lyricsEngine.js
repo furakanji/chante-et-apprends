@@ -176,7 +176,7 @@ export const getSongData = (id) => {
         }
     };
 
-    return songs[id] || songs[1]; // Default to Papaoutai if not found
+    return songs[id] || null; // Return null if not found to allow Firestore fetch
 };
 
 export const INITIAL_SONGS = [
