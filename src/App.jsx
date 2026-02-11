@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 // Lazy Load Pages
 const Home = React.lazy(() => import('./pages/Home'));
 const Game = React.lazy(() => import('./pages/Game'));
+const SecretAdmin = React.lazy(() => import('./pages/SecretAdmin'));
 
 // Simple Loading Spinner
 const LoadingSpinner = () => (
@@ -20,6 +21,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/play/:id" element={<Game />} />
+                    <Route path="/secret-dashboard-super-secure" element={<SecretAdmin />} />
                 </Routes>
             </Suspense>
         </Router>
