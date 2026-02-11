@@ -8,15 +8,15 @@ export default {
     extend: {
       colors: {
         bubble: {
-          100: '#E0F7FA',
-          200: '#B2EBF2',
-          300: '#80DEEA',
-          400: '#4DD0E1',
-          500: '#26C6DA',
-          600: '#00BCD4', // Primary
-          700: '#00ACC1',
-          800: '#0097A7',
-          900: '#006064',
+          100: '#FFF3E0', // Orange 50
+          200: '#FFE0B2', // Orange 100
+          300: '#FFCC80', // Orange 200
+          400: '#FFB74D', // Orange 300
+          500: '#FFA726', // Orange 400
+          600: '#FF9800', // Orange 500 (Primary)
+          700: '#F57C00', // Orange 700
+          800: '#EF6C00', // Orange 800
+          900: '#E65100', // Orange 900
         },
         accent: {
           pink: '#F06292',
