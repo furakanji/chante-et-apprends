@@ -39,7 +39,7 @@ export const getSongData = (id) => {
             id: 2,
             title: "Je Veux",
             artist: "Zaz",
-            videoId: "Tm88QAI8I5k",
+            videoId: "AQ9zeDd0mpg", // Changed to Lyric Video for better embedding
             level: "B1",
             lyrics: [
                 { time: 10, text: "Donnez-moi une suite au Ritz", type: "line" },
@@ -69,15 +69,15 @@ export const getSongData = (id) => {
             id: 3,
             title: "La Vie En Rose",
             artist: "Édith Piaf",
-            videoId: "ozeqYt3S2e8", // Live version or compatible one
+            videoId: "3Ba_WoSZXvw", // Changed to a more reliable version
             level: "B2",
             lyrics: [
-                { time: 15, text: "Quand il me prend dans ses bras", type: "line" },
-                { time: 20, text: "Il me parle tout bas", type: "line" },
-                { time: 25, text: "Je vois la vie en rose", type: "line" },
-                { time: 30, text: "Il me dit des mots d'amour", type: "line" },
-                { time: 35, text: "Des mots de tous les jours", type: "line" },
-                { time: 40, text: "Et ça me fait quelque chose", type: "line" },
+                { time: 14, text: "Quand il me prend dans ses bras", type: "line" },
+                { time: 18, text: "Il me parle tout bas", type: "line" },
+                { time: 22, text: "Je vois la vie en rose", type: "line" },
+                { time: 26, text: "Il me dit des mots d'amour", type: "line" },
+                { time: 30, text: "Des mots de tous les jours", type: "line" },
+                { time: 34, text: "Et ça me fait quelque chose", type: "line" },
             ],
             vocabulary: {
                 "bras": { translation: "Arms", context: "Body part." },
@@ -111,6 +111,55 @@ export const getSongData = (id) => {
                 "sans": { translation: "Without", context: "Preposition." },
                 "seule": { translation: "Alone", context: "Adjective (feminine)." },
                 "métro": { translation: "Subway", context: "Transportation." }
+            }
+        },
+        5: {
+            id: 5,
+            title: "Elle Me Dit",
+            artist: "Mika",
+            videoId: "NiHWwKC8WjU",
+            level: "B1",
+            lyrics: [
+                { time: 18, text: "Elle me dit écris une chanson contente", type: "line" },
+                { time: 22, text: "Pas une chanson déprimante", type: "line" },
+                { time: 25, text: "Une chanson que tout le monde aime", type: "line" },
+                { time: 30, text: "Elle me dit tu deviendras milliardaire", type: "line" },
+                { time: 34, text: "Tu auras de quoi être fier", type: "line" },
+                { time: 37, text: "Ne finis pas comme ton père", type: "line" },
+            ],
+            vocabulary: {
+                "écris": { translation: "Write", context: "Imperative 'Écrire'." },
+                "contente": { translation: "Happy", context: "Adjective." },
+                "déprimante": { translation: "Depressing", context: "Adjective." },
+                "aime": { translation: "Likes/Loves", context: "Verb 'Aimer'." },
+                "milliardaire": { translation: "Billionaire", context: "Noun." },
+                "fier": { translation: "Proud", context: "Adjective." },
+                "père": { translation: "Father", context: "Noun." }
+            }
+        },
+        6: {
+            id: 6,
+            title: "Alors On Danse",
+            artist: "Stromae",
+            videoId: "VHoT4N43jK8",
+            level: "A1",
+            lyrics: [
+                { time: 47, text: "Alors on danse", type: "chorus" },
+                { time: 49, text: "Alors on danse", type: "chorus" },
+                { time: 51, text: "Alors on danse", type: "chorus" },
+                { time: 55, text: "Qui dit étude dit travail", type: "line" },
+                { time: 57, text: "Qui dit taf te dit les thunes", type: "line" },
+                { time: 59, text: "Qui dit argent dit dépenses", type: "line" },
+                { time: 61, text: "Qui dit crédit dit créance", type: "line" },
+            ],
+            vocabulary: {
+                "danse": { translation: "Dance", context: "Verb 'Danser'." },
+                "étude": { translation: "Study", context: "Noun." },
+                "travail": { translation: "Work", context: "Noun." },
+                "taf": { translation: "Job/Work", context: "Slang for 'Travail'." },
+                "thunes": { translation: "Money", context: "Slang for 'Argent'." },
+                "argent": { translation: "Money", context: "Noun." },
+                "dépenses": { translation: "Expenses", context: "Noun." }
             }
         }
     };
