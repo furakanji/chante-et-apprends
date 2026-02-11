@@ -166,7 +166,7 @@ const Game = () => {
                         <div className="font-bold text-bubble-600">{score} pts</div>
                     </div>
 
-                    <div className="overflow-y-auto flex-grow p-4 lg:p-6 space-y-6 scrollbar-thin scrollbar-thumb-bubble-300 scrollbar-track-transparent pb-32">
+                    <div className="overflow-y-auto flex-grow p-4 lg:p-6 space-y-6 scrollbar-thin scrollbar-thumb-bubble-300 scrollbar-track-transparent pb-64">
                         {lyrics.map((line, lineIndex) => (
                             <div key={lineIndex} className="text-lg md:text-2xl font-medium text-gray-700 leading-loose flex flex-wrap gap-x-2 items-baseline">
                                 {line.content.map((item, wordIndex) => {
