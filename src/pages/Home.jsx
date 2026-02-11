@@ -9,8 +9,8 @@ import { collection, getDocs } from 'firebase/firestore';
 // Mock Data
 const SONGS = [
     { id: 1, title: "Papaoutai", artist: "Stromae", level: "A2", color: "bg-accent-pink" },
-    { id: 2, title: "Je Veux", artist: "Zaz", level: "B1", color: "bg-accent-purple" },
-    { id: 3, title: "La Vie En Rose", artist: "Édith Piaf", level: "B2", color: "bg-accent-orange" },
+    { id: 2, title: "Un Jour Au Mauvais Endroit", artist: "Calogero", level: "B1", color: "bg-accent-purple" },
+    { id: 3, title: "N'attendons pas", artist: "Vianney", level: "B2", color: "bg-accent-orange" },
     { id: 4, title: "Dernière Danse", artist: "Indila", level: "A2", color: "bg-bubble-400" },
     { id: 5, title: "Elle Me Dit", artist: "Mika", level: "B1", color: "bg-accent-yellow" },
     { id: 6, title: "Alors On Danse", artist: "Stromae", level: "A1", color: "bg-accent-pink" },
