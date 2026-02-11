@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Play, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Play, CheckCircle, XCircle, RefreshCw, Share2 } from 'lucide-react';
 import Layout from '../components/Layout';
 import { getSongData, generateBlanks } from '../utils/lyricsEngine';
 import { checkAnswer } from '../utils/stringUtils';
-import confetti from 'canvas-confetti'; // We'll need to install this or use a simple CSS alternative
+import confetti from 'canvas-confetti';
 
 const Game = () => {
     const { id } = useParams();
+    const [searchParams] = useSearchParams();
     const [song, setSong] = useState(null);
     const [lyrics, setLyrics] = useState([]);
     const [score, setScore] = useState(0);
     const [isComplete, setIsComplete] = useState(false);
+
+    // Challenge Mode State
+    const challengeScore = searchParams.get('score');
+    const challengerName = searchParams.get('challenger') || 'A friend';
 
     useEffect(() => {
         const data = getSongData(id);
@@ -33,13 +38,11 @@ const Game = () => {
     }, [id]);
 
     useEffect(() => {
-        // Check for completion
         if (lyrics.length > 0) {
             const allBlanks = lyrics.flatMap(l => l.content.filter(w => w.isBlank));
             const allCorrect = allBlanks.every(w => w.isCorrect);
             if (allCorrect && allBlanks.length > 0 && !isComplete) {
                 setIsComplete(true);
-                // Trigger confetti
                 confetti({
                     particleCount: 150,
                     spread: 70,
@@ -52,7 +55,6 @@ const Game = () => {
     const handleInputChange = (lineIndex, wordIndex, value) => {
         const newLyrics = [...lyrics];
         const wordObj = newLyrics[lineIndex].content[wordIndex];
-
         wordObj.userValue = value;
 
         if (checkAnswer(value, wordObj.word)) {
@@ -60,11 +62,15 @@ const Game = () => {
                 wordObj.isCorrect = true;
                 setScore(prev => prev + 10);
             }
-        } else {
-            // Optional: Penalize or just mark incorrect state
         }
-
         setLyrics(newLyrics);
+    };
+
+    const handleShare = () => {
+        const url = `${window.location.origin}/play/${id}?score=${score}&challenger=Friend`;
+        const text = `I scored ${score} points on ${song.title}! Can you beat me? play here: ${url}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(whatsappUrl, '_blank');
     };
 
     if (!song) return <div className="text-center p-10 font-bold text-bubble-600">Loading Song...</div>;
@@ -78,6 +84,13 @@ const Game = () => {
                     <Link to="/" className="flex items-center gap-2 text-bubble-600 hover:text-bubble-800 font-bold mb-2 transition-colors">
                         <ArrowLeft size={20} /> Back to Songs
                     </Link>
+
+                    {/* Challenge Banner */}
+                    {challengeScore && (
+                        <div className="bg-accent-yellow text-bubble-900 p-3 rounded-xl font-bold text-center animate-bounce shadow-md border-2 border-bubble-900">
+                            🏆 Challenge: Beat {challengerName}'s score of {challengeScore}!
+                        </div>
+                    )}
 
                     <div className="card-bubble p-0 overflow-hidden relative aspect-video bg-black shadow-2xl border-4 border-white">
                         <iframe
@@ -104,16 +117,22 @@ const Game = () => {
 
                         {/* Completion Badge */}
                         {isComplete && (
-                            <div className="absolute inset-0 bg-accent-pink/90 flex flex-col items-center justify-center z-20 animate-pop">
-                                <h3 className="text-3xl font-black mb-2">Bravo!</h3>
-                                <p className="font-bold mb-4">Level Complete</p>
-                                <div className="flex gap-2">
-                                    <Link to="/" className="bg-white text-accent-pink px-4 py-2 rounded-full font-bold hover:scale-105 transition-transform">
-                                        More Songs
-                                    </Link>
-                                    <button onClick={() => window.location.reload()} className="bg-white/20 text-white px-4 py-2 rounded-full font-bold hover:bg-white/30 transition-colors">
-                                        <RefreshCw size={20} />
+                            <div className="absolute inset-0 bg-accent-pink/95 flex flex-col items-center justify-center z-20 animate-pop p-6 text-center">
+                                <h3 className="text-3xl font-black mb-2 text-white">Bravo!</h3>
+                                <p className="font-bold mb-4 text-white/90">You scored {score} points!</p>
+                                <div className="flex flex-col gap-3 w-full">
+                                    <button onClick={handleShare} className="bg-white text-accent-pink px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-lg">
+                                        <Share2 size={20} />
+                                        Challenge a Friend
                                     </button>
+                                    <div className="flex gap-2 justify-center">
+                                        <Link to="/" className="bg-white/20 text-white px-4 py-2 rounded-full font-bold hover:bg-white/30 transition-colors border border-white/40">
+                                            Menu
+                                        </Link>
+                                        <button onClick={() => window.location.reload()} className="bg-white/20 text-white px-4 py-2 rounded-full font-bold hover:bg-white/30 transition-colors border border-white/40">
+                                            <RefreshCw size={20} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -121,7 +140,7 @@ const Game = () => {
                 </div>
 
                 {/* Right: Lyrics Stream */}
-                <div className="lg:w-2/3 card-bubble overflow-hidden flex flex-col bg-white/90 backdrop-blur-md shadow-inner border-bubble-100">
+                <div className="lg:w-2/3 card-bubble overflow-hidden flex flex-col bg-white/90 backdrop-blur-md shadow-inner border-bubble-100 flex-1">
                     <div className="overflow-y-auto flex-grow p-6 space-y-6 scrollbar-thin scrollbar-thumb-bubble-300 scrollbar-track-transparent">
                         {lyrics.map((line, lineIndex) => (
                             <div key={lineIndex} className="text-lg md:text-2xl font-medium text-gray-700 leading-loose flex flex-wrap gap-x-2 items-baseline">
