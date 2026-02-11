@@ -1,10 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, User } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Layout = ({ children }) => {
+    const { currentUser, loginWithGoogle, logout } = useAuth();
+
     return (
-        <div className="min-h-screen flex flex-col bg-bubble-100 font-sans">
+        <div className="min-h-screen bg-bubble-100 font-sans text-gray-800 relative overflow-hidden">
             {/* Header */}
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-bubble-200">
                 <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -14,11 +17,28 @@ const Layout = ({ children }) => {
                     </Link>
 
                     <div className="flex items-center gap-3">
-                        <button className="p-2 bg-bubble-100 rounded-full text-bubble-600 hover:bg-bubble-200 transition-colors">
-                            <User size={20} />
-                        </button>
-                        <button className="p-2 bg-bubble-100 rounded-full text-bubble-600 hover:bg-bubble-200 transition-colors md:hidden">
-                            <Menu size={20} />
+                        {currentUser ? (
+                            <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-bubble-200 shadow-sm">
+                                <User size={18} className="text-bubble-500" />
+                                <span className="text-sm font-medium text-bubble-700">
+                                    {currentUser.isAnonymous ? 'Guest' : currentUser.displayName?.split(' ')[0]}
+                                </span>
+                                {currentUser.isAnonymous && (
+                                    <button
+                                        onClick={loginWithGoogle}
+                                        className="text-xs bg-bubble-500 text-white px-2 py-1 rounded-full hover:bg-bubble-600"
+                                    >
+                                        Save Progress
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <button onClick={loginWithGoogle} className="btn-bubble text-sm py-1 px-4">
+                                Sign In
+                            </button>
+                        )}
+                        <button className="p-2 hover:bg-bubble-100 rounded-full transition-colors text-bubble-600">
+                            <Menu size={24} />
                         </button>
                     </div>
                 </div>
