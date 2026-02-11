@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Music, Menu, User } from 'lucide-react';
+import { Menu, User } from 'lucide-react';
 
 const Layout = ({ children }) => {
     return (
@@ -9,12 +9,8 @@ const Layout = ({ children }) => {
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-sm border-b border-bubble-200">
                 <div className="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
                     <Link to="/" className="flex items-center gap-2 group">
-                        <div className="bg-bubble-500 p-2 rounded-full text-white group-hover:animate-bounce transition-transform">
-                            <Music size={24} />
-                        </div>
-                        <h1 className="text-2xl font-bold text-bubble-800 tracking-wide">
-                            Chante & Apprends
-                        </h1>
+                        <img src="/logo.png" alt="MotMotMot Logo" className="w-12 h-12 object-contain group-hover:animate-bounce transition-transform" />
+                        <span className="text-2xl font-bold text-bubble-600">MotMotMot</span>
                     </Link>
 
                     <div className="flex items-center gap-3">
