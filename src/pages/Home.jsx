@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
-import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import AddSong from '../components/AddSong';
 
