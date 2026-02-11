@@ -179,6 +179,15 @@ export const getSongData = (id) => {
     return songs[id] || songs[1]; // Default to Papaoutai if not found
 };
 
+export const INITIAL_SONGS = [
+    { id: 1, title: "Papaoutai", artist: "Stromae", level: "A2", color: "bg-accent-pink" },
+    { id: 2, title: "Un Jour Au Mauvais Endroit", artist: "Calogero", level: "B1", color: "bg-accent-purple" },
+    { id: 3, title: "N'attendons pas", artist: "Vianney", level: "B2", color: "bg-accent-orange" },
+    { id: 4, title: "Dernière Danse", artist: "Indila", level: "A2", color: "bg-bubble-400" },
+    { id: 5, title: "Elle Me Dit", artist: "Mika", level: "B1", color: "bg-accent-yellow" },
+    { id: 6, title: "Alors On Danse", artist: "Stromae", level: "A1", color: "bg-accent-pink" },
+];
+
 export const generateBlanks = (lyrics, level, vocabulary = {}) => {
     // Simple blanking logic based on random selection for now
     // Real implementation would use POS tagging or a dictionary

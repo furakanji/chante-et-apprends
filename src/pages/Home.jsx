@@ -4,7 +4,9 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
+import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import AddSong from '../components/AddSong';
 
 // Mock Data
 const SONGS = [
@@ -56,10 +58,12 @@ const SongCard = ({ song, userScore }) => (
 
 const Home = () => {
     const { currentUser } = useAuth();
-    const [userScores, setUserScores] = useState({});
+    const [communitySongs, setCommunitySongs] = useState([]);
+    const [showAddSong, setShowAddSong] = useState(false);
 
     React.useEffect(() => {
         const fetchScores = async () => {
+            // ... existing score fetch logic ...
             if (currentUser) {
                 try {
                     const scoresRef = collection(db, 'users', currentUser.uid, 'scores');
@@ -76,8 +80,38 @@ const Home = () => {
                 setUserScores({});
             }
         };
+
+        const fetchCommunitySongs = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'community_songs'));
+                const songs = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    // Use Firestore document ID as the song ID for routing
+                    songs.push({
+                        id: doc.id,
+                        title: data.title,
+                        artist: data.artist,
+                        level: "Community",
+                        color: "bg-bubble-300",
+                        isCommunity: true
+                    });
+                });
+                setCommunitySongs(songs);
+            } catch (error) {
+                console.error("Error fetching community songs:", error);
+            }
+        };
+
         fetchScores();
+        fetchCommunitySongs();
     }, [currentUser]);
+
+    const handleSongAdded = () => {
+        // Refresh list after adding
+        // Simplest way is to reload or re-fetch. Let's just re-fetch for now.
+        window.location.reload();
+    };
 
     return (
         <Layout>
@@ -85,9 +119,18 @@ const Home = () => {
                 <h2 className="text-4xl font-bold text-bubble-900 mb-2 font-display">
                     Pick a Song
                 </h2>
-                <p className="text-bubble-700 text-lg">
+                <p className="text-bubble-700 text-lg mb-6">
                     Master French lyrics with your favorite tunes!
                 </p>
+
+                <button
+                    onClick={() => setShowAddSong(true)}
+                    className="btn-bubble px-6 py-2 flex items-center gap-2 mx-auto"
+                >
+                    <MusicNote size={20} />
+                    Add Your Own Song
+                </button>
+
                 {!currentUser && (
                     <p className="text-sm text-bubble-500 mt-2">
                         Sign in to save your progress 💾
@@ -95,11 +138,32 @@ const Home = () => {
                 )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {SONGS.map(song => (
-                    <SongCard key={song.id} song={song} userScore={userScores[song.id]} />
-                ))}
+            <div className="mb-12">
+                <h3 className="text-2xl font-bold text-bubble-800 mb-6 border-b border-bubble-200 pb-2">Featured Songs</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {SONGS.map(song => (
+                        <SongCard key={song.id} song={song} userScore={userScores[song.id]} />
+                    ))}
+                </div>
             </div>
+
+            {communitySongs.length > 0 && (
+                <div className="mb-12">
+                    <h3 className="text-2xl font-bold text-bubble-800 mb-6 border-b border-bubble-200 pb-2">Community Songs</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {communitySongs.map(song => (
+                            <SongCard key={song.id} song={song} userScore={userScores[song.id]} />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {showAddSong && (
+                <AddSong
+                    onClose={() => setShowAddSong(false)}
+                    onSongAdded={handleSongAdded}
+                />
+            )}
         </Layout>
     );
 };

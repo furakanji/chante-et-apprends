@@ -24,26 +24,69 @@ const Game = () => {
     const challengeScore = searchParams.get('score');
     const challengerName = searchParams.get('challenger') || 'A friend';
 
-    // Initial load effect (unchanged)
+    // Initial load effect
     useEffect(() => {
-        const data = getSongData(id);
-        setSong(data);
-        // Pass vocabulary to generator
-        const initialLyrics = generateBlanks(data.lyrics, data.level, data.vocabulary);
+        const fetchSong = async () => {
+            // 1. Try to get from static list first
+            let data = getSongData(id);
 
-        const lyricsWithState = initialLyrics.map(line => ({
-            ...line,
-            content: line.content.map(word => ({
-                ...word,
-                userValue: '',
-                isCorrect: false, // Used for internal scoring
-            }))
-        }));
+            // 2. If not found, try Firestore
+            if (!data) {
+                try {
+                    const docRef = doc(db, "community_songs", id);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const firestoreData = docSnap.data();
 
-        setLyrics(lyricsWithState);
-        setScore(0);
-        setIsComplete(false);
-        setHasValidated(false);
+                        // Adapt Firestore data to app structure
+                        // We need to parse the lyrics appropriately if they are just a string
+                        // For now, let's assume raw text and we need to split it
+                        const rawLyrics = firestoreData.lyrics || "";
+                        const parsedLyrics = rawLyrics.split('\n')
+                            .filter(line => line.trim().length > 0)
+                            .map((line, index) => ({
+                                time: index * 4, // Fake timing for now
+                                text: line.trim(),
+                                type: "line"
+                            }));
+
+                        data = {
+                            id: docSnap.id,
+                            title: firestoreData.title,
+                            artist: firestoreData.artist,
+                            videoId: firestoreData.videoId,
+                            level: "Community",
+                            lyrics: parsedLyrics,
+                            vocabulary: {} // No vocab for community songs yet
+                        };
+                    }
+                } catch (err) {
+                    console.error("Error fetching community song:", err);
+                }
+            }
+
+            if (data) {
+                setSong(data);
+                // Pass vocabulary to generator
+                const initialLyrics = generateBlanks(data.lyrics, data.level || "B1", data.vocabulary);
+
+                const lyricsWithState = initialLyrics.map(line => ({
+                    ...line,
+                    content: line.content.map(word => ({
+                        ...word,
+                        userValue: '',
+                        isCorrect: false, // Used for internal scoring
+                    }))
+                }));
+
+                setLyrics(lyricsWithState);
+                setScore(0);
+                setIsComplete(false);
+                setHasValidated(false);
+            }
+        };
+
+        fetchSong();
     }, [id]);
 
     // Validation Logic (Triggered manually or at end)
