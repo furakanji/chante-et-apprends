@@ -188,7 +188,8 @@ const Game = () => {
                                                     className={`
                                                         border-b-4 text-center min-w-[3rem] max-w-[8rem] rounded-lg px-2 py-1 transition-all duration-200
                                                         focus:outline-none focus:bg-bubble-50 focus:border-bubble-500
-                                                        bg-gray-50 border-gray-300 text-gray-800
+                                                        bg-gray-50 text-gray-800
+                                                        ${!item.userValue.trim() ? 'border-accent-yellow/50 bg-accent-yellow/10 animate-pulse' : 'border-gray-300'}
                                                     `}
                                                     style={{ width: `${Math.max(item.word.length * 12, 60)}px` }}
                                                     placeholder="?"
@@ -236,7 +237,9 @@ const Game = () => {
                                     ${allBlanksFilled ? 'opacity-100 animate-bounce' : 'opacity-50 grayscale cursor-not-allowed'}
                                 `}
                             >
-                                {allBlanksFilled ? '✨ Validate Answers! ✨' : 'Fill all blanks to finish'}
+                                {allBlanksFilled
+                                    ? '✨ Validate Answers! ✨'
+                                    : `${lyrics.reduce((acc, line) => acc + line.content.filter(w => w.isBlank && w.userValue.trim().length === 0).length, 0)} blanks remaining`}
                             </button>
                         </div>
                     )}
