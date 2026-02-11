@@ -54,7 +54,7 @@ const Layout = ({ children }) => {
             {/* Footer */}
             <footer className="bg-white py-6 border-t border-bubble-200">
                 <div className="max-w-5xl mx-auto px-4 text-center text-bubble-700 text-sm">
-                    <p>© 2024 Chante & Apprends. Learn French with Music!</p>
+                    <p>© 2025 MotMotMot - A Totally Unnecessary Productions</p>
                 </div>
             </footer>
         </div>
