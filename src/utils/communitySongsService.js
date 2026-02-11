@@ -25,6 +25,25 @@ export const fetchYoutubeMetadata = async (videoId) => {
     }
 };
 
+export const fetchLyrics = async (artist, title) => {
+    try {
+        // Clean up artist/title for better search results
+        // Remove things like (Official Video), ft., etc. if needed
+        // For now, let's try raw first, then maybe clean if failed
+        const cleanArtist = artist.replace(/ - Topic|VEVO|Official|Video|Clip|Lyic/gi, "").trim();
+        const cleanTitle = title.replace(/\(.*\)|\[.*\]|ft\..*|feat\..*/gi, "").trim();
+
+        const response = await fetch(`https://api.lyrics.ovh/v1/${encodeURIComponent(cleanArtist)}/${encodeURIComponent(cleanTitle)}`);
+        if (!response.ok) throw new Error("Lyrics not found");
+
+        const data = await response.json();
+        return data.lyrics;
+    } catch (error) {
+        console.warn("Lyrics fetch failed:", error);
+        return null;
+    }
+};
+
 export const isFrench = (text) => {
     // Basic check: franc returns 'fra' for French
     const lang = franc(text);

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { validateYoutubeUrl, fetchYoutubeMetadata, isFrench, saveSong } from '../utils/communitySongsService';
+import { validateYoutubeUrl, fetchYoutubeMetadata, isFrench, saveSong, fetchLyrics } from '../utils/communitySongsService';
 import { Loader2, Check, AlertCircle, Music } from 'lucide-react';
 
 const AddSong = ({ onClose, onSongAdded }) => {
@@ -31,6 +31,13 @@ const AddSong = ({ onClose, onSongAdded }) => {
                 setMetadata({ ...data, videoId });
                 setCustomTitle(data.title);
                 setCustomArtist(data.author_name);
+
+                // Try to fetch lyrics automatically
+                const fetchedLyrics = await fetchLyrics(data.author_name, data.title);
+                if (fetchedLyrics) {
+                    setLyrics(fetchedLyrics);
+                }
+
                 setStep(2);
             } else {
                 setError("Could not fetch video details. Please check the link.");
