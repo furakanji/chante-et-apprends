@@ -5,9 +5,13 @@ import Layout from '../components/Layout';
 import { getSongData, generateBlanks } from '../utils/lyricsEngine';
 import { checkAnswer } from '../utils/stringUtils';
 import confetti from 'canvas-confetti';
+import { useAuth } from '../contexts/AuthContext';
+import { db } from '../firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const Game = () => {
     const { id } = useParams();
+    const { currentUser } = useAuth();
     const [searchParams] = useSearchParams();
     const [song, setSong] = useState(null);
     const [lyrics, setLyrics] = useState([]);
@@ -48,9 +52,39 @@ const Game = () => {
                     spread: 70,
                     origin: { y: 0.6 }
                 });
+
+                // Save Score
+                if (currentUser) {
+                    saveScore(currentUser.uid, id, score, song.title);
+                }
             }
         }
-    }, [lyrics]);
+    }, [lyrics, isComplete, currentUser, id, score, song]);
+
+    const saveScore = async (userId, songId, currentScore, songTitle) => {
+        try {
+            const userRef = doc(db, 'users', userId);
+            const scoreRef = doc(userRef, 'scores', songId);
+
+            // Get existing score to check for high score
+            const docSnap = await getDoc(scoreRef);
+            const existingData = docSnap.exists() ? docSnap.data() : { highScore: 0 };
+
+            const newHighScore = Math.max(existingData.highScore || 0, currentScore);
+
+            await setDoc(scoreRef, {
+                highScore: newHighScore,
+                lastScore: currentScore,
+                songTitle: songTitle,
+                lastPlayed: new Date(),
+                attempts: (existingData.attempts || 0) + 1
+            }, { merge: true });
+
+            console.log("Score saved!");
+        } catch (error) {
+            console.error("Error saving score:", error);
+        }
+    };
 
     const handleInputChange = (lineIndex, wordIndex, value) => {
         const newLyrics = [...lyrics];
