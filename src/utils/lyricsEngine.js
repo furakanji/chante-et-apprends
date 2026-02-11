@@ -39,7 +39,7 @@ export const getSongData = (id) => {
             id: 2,
             title: "Je Veux",
             artist: "Zaz",
-            videoId: "AQ9zeDd0mpg", // Changed to Lyric Video for better embedding
+            videoId: "W0xjW-e4KEg", // Updated per user request
             level: "B1",
             lyrics: [
                 { time: 10, text: "Donnez-moi une suite au Ritz", type: "line" },
@@ -69,7 +69,7 @@ export const getSongData = (id) => {
             id: 3,
             title: "La Vie En Rose",
             artist: "Édith Piaf",
-            videoId: "3Ba_WoSZXvw", // Changed to a more reliable version
+            videoId: "8nUd4IId9l0", // Updated per user request
             level: "B2",
             lyrics: [
                 { time: 14, text: "Quand il me prend dans ses bras", type: "line" },
