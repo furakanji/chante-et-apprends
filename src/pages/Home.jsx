@@ -57,6 +57,7 @@ const SongCard = ({ song, userScore }) => (
 
 const Home = () => {
     const { currentUser } = useAuth();
+    const [userScores, setUserScores] = useState({});
     const [communitySongs, setCommunitySongs] = useState([]);
     const [showAddSong, setShowAddSong] = useState(false);
 
