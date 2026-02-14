@@ -203,17 +203,40 @@ export const generateBlanks = (lyrics, level, vocabulary = {}) => {
 
     const ratio = difficultyMap[level] || 0.2;
 
-    return lyrics.map(line => {
+    // 1. Identify all candidate words across the entire song
+    const candidates = [];
+    lyrics.forEach((line, lineIndex) => {
         const words = line.text.split(' ');
-        const blankedWords = words.map(word => {
-            // Clean word for key lookup (remove punctuation)
+        words.forEach((word, wordIndex) => {
+            // Clean word for evaluation
+            const cleanWord = word.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
+            if (cleanWord.length >= 3) {
+                candidates.push({ lineIndex, wordIndex, word });
+            }
+        });
+    });
+
+    // 2. Determine how many blanks to create
+    // Target is ratio * candidates, but capped at 15
+    const targetBlanks = Math.min(Math.floor(candidates.length * ratio), 15);
+
+    // 3. Randomly select candidates
+    // Fisher-Yates shuffle or simple random selection
+    const shuffled = [...candidates].sort(() => 0.5 - Math.random());
+    const selectedIndices = new Set(
+        shuffled.slice(0, targetBlanks).map(c => `${c.lineIndex}-${c.wordIndex}`)
+    );
+
+    // 4. Generate the final structure
+    return lyrics.map((line, lineIndex) => {
+        const words = line.text.split(' ');
+        const blankedWords = words.map((word, wordIndex) => {
             const cleanKey = word.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
             const contextData = vocabulary[cleanKey];
 
-            // Don't blank short words or punctuation for now
-            if (word.length < 3) return { word, isBlank: false, context: contextData };
+            const shouldBlank = selectedIndices.has(`${lineIndex}-${wordIndex}`);
 
-            return Math.random() < ratio
+            return shouldBlank
                 ? { word, isBlank: true, value: '', context: contextData }
                 : { word, isBlank: false, context: contextData };
         });

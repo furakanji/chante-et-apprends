@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import AddSong from '../components/AddSong';
 
 // Mock Data
@@ -83,7 +83,8 @@ const Home = () => {
 
         const fetchCommunitySongs = async () => {
             try {
-                const querySnapshot = await getDocs(collection(db, 'community_songs'));
+                const q = query(collection(db, 'community_songs'), orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
                 const songs = [];
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();

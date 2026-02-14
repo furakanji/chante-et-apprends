@@ -258,7 +258,18 @@ const Game = () => {
 
                                             {/* Context/Translation Icon (Review Mode) */}
                                             {showResult && (
-                                                <div className="absolute -top-6 -right-2 z-10 cursor-pointer text-bubble-500 hover:text-bubble-700 transition-colors bg-white rounded-full shadow-sm" title="See translation and context">
+                                                <div
+                                                    className="absolute -top-6 -right-2 z-10 cursor-pointer text-bubble-500 hover:text-bubble-700 transition-colors bg-white rounded-full shadow-sm"
+                                                    title="See translation and context"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedWord({
+                                                            word: item.word,
+                                                            translation: item.context?.translation || "No translation available",
+                                                            context: item.context?.context || "No context available"
+                                                        });
+                                                    }}
+                                                >
                                                     <Info size={16} />
                                                 </div>
                                             )}
