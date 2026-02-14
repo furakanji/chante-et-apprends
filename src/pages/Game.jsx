@@ -8,6 +8,7 @@ import confetti from 'canvas-confetti';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { fetchTranslation } from '../utils/translationService';
 
 const Game = () => {
     const { id } = useParams();
@@ -256,23 +257,38 @@ const Game = () => {
                                                 </div>
                                             )}
 
-                                            {/* Context/Translation Icon (Review Mode) */}
-                                            {showResult && (
-                                                <div
-                                                    className="absolute -top-6 -right-2 z-10 cursor-pointer text-bubble-500 hover:text-bubble-700 transition-colors bg-white rounded-full shadow-sm"
-                                                    title="See translation and context"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
+                                            <div
+                                                className="absolute -top-6 -right-2 z-10 cursor-pointer text-bubble-500 hover:text-bubble-700 transition-colors bg-white rounded-full shadow-sm"
+                                                title="See translation and context"
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+
+                                                    // If we have explicit context (static songs), use it
+                                                    if (item.context && item.context.translation) {
                                                         setSelectedWord({
                                                             word: item.word,
-                                                            translation: item.context?.translation || "No translation available",
-                                                            context: item.context?.context || "No context available"
+                                                            translation: item.context.translation,
+                                                            context: item.context.context
                                                         });
-                                                    }}
-                                                >
-                                                    <Info size={16} />
-                                                </div>
-                                            )}
+                                                    } else {
+                                                        // For community songs, fetch dynamic translation
+                                                        setSelectedWord({
+                                                            word: item.word,
+                                                            loading: true
+                                                        });
+
+                                                        const translation = await fetchTranslation(item.word);
+
+                                                        setSelectedWord({
+                                                            word: item.word,
+                                                            translation: translation || "Translation unavailable",
+                                                            context: `Used in: "${line.text}"` // Use the line as context
+                                                        });
+                                                    }
+                                                }}
+                                            >
+                                                <Info size={16} />
+                                            </div>
                                         </div>
                                     );
                                 })}
@@ -326,15 +342,23 @@ const Game = () => {
                                 </div>
 
                                 <div className="space-y-4">
-                                    <div className="bg-bubble-50 p-3 rounded-xl border border-bubble-100">
-                                        <span className="text-xs font-bold text-bubble-400 uppercase tracking-wider block mb-1">Translation</span>
-                                        <p className="text-lg text-gray-800 font-medium">{selectedWord.translation}</p>
-                                    </div>
+                                    {selectedWord.loading ? (
+                                        <div className="flex justify-center p-8">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bubble-500"></div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="bg-bubble-50 p-3 rounded-xl border border-bubble-100">
+                                                <span className="text-xs font-bold text-bubble-400 uppercase tracking-wider block mb-1">Translation</span>
+                                                <p className="text-lg text-gray-800 font-medium">{selectedWord.translation}</p>
+                                            </div>
 
-                                    <div className="bg-accent-yellow/10 p-3 rounded-xl border border-accent-yellow/20">
-                                        <span className="text-xs font-bold text-yellow-600 uppercase tracking-wider block mb-1">Context</span>
-                                        <p className="text-gray-700 italic">{selectedWord.context}</p>
-                                    </div>
+                                            <div className="bg-accent-yellow/10 p-3 rounded-xl border border-accent-yellow/20">
+                                                <span className="text-xs font-bold text-yellow-600 uppercase tracking-wider block mb-1">Context</span>
+                                                <p className="text-gray-700 italic">{selectedWord.context}</p>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
 
                                 <button
