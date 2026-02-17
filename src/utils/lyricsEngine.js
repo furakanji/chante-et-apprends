@@ -188,40 +188,38 @@ export const INITIAL_SONGS = [
     { id: 6, title: "Alors On Danse", artist: "Stromae", level: "A1", color: "bg-accent-pink" },
 ];
 
-export const generateBlanks = (lyrics, level, vocabulary = {}) => {
-    // Simple blanking logic based on random selection for now
-    // Real implementation would use POS tagging or a dictionary
-
-    const difficultyMap = {
-        'A1': 0.1, // 10% of words
-        'A2': 0.2,
-        'B1': 0.3,
-        'B2': 0.4,
-        'C1': 0.5,
-        'C2': 0.6
+export const generateBlanks = (lyrics, level, vocabulary = {}, difficulty = 'Medium') => {
+    // Difficulty settings
+    const difficultySettings = {
+        'Easy': { count: 10, minWordLength: 4 },
+        'Medium': { count: 15, minWordLength: 3 },
+        'Hard': { count: 20, minWordLength: 2 }
     };
 
-    const ratio = difficultyMap[level] || 0.2;
+    const settings = difficultySettings[difficulty] || difficultySettings['Medium'];
 
-    // 1. Identify all candidate words across the entire song
+    // 1. Identify all candidate words across the song, EXCLUDING the last line
     const candidates = [];
     lyrics.forEach((line, lineIndex) => {
+        // Rule: Never blank the last line
+        if (lineIndex === lyrics.length - 1) return;
+
         const words = line.text.split(' ');
         words.forEach((word, wordIndex) => {
             // Clean word for evaluation
             const cleanWord = word.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, "");
-            if (cleanWord.length >= 3) {
+            // Filter by word length based on difficulty
+            if (cleanWord.length >= settings.minWordLength) {
                 candidates.push({ lineIndex, wordIndex, word });
             }
         });
     });
 
     // 2. Determine how many blanks to create
-    // Target is ratio * candidates, but capped at 15
-    const targetBlanks = Math.min(Math.floor(candidates.length * ratio), 15);
+    // Use fixed count, but cap at available candidates
+    const targetBlanks = Math.min(settings.count, candidates.length);
 
     // 3. Randomly select candidates
-    // Fisher-Yates shuffle or simple random selection
     const shuffled = [...candidates].sort(() => 0.5 - Math.random());
     const selectedIndices = new Set(
         shuffled.slice(0, targetBlanks).map(c => `${c.lineIndex}-${c.wordIndex}`)

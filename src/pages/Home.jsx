@@ -20,9 +20,7 @@ const SONGS = [
 const SongCard = ({ song, userScore }) => (
     <Link to={`/play/${song.id}`}>
         <div className="card-bubble group hover:bg-bubble-50 transition-colors cursor-pointer relative overflow-hidden h-full">
-            <div className={`absolute top-0 right-0 p-2 ${song.color} rounded-bl-3xl text-white font-bold shadow-md z-10`}>
-                {song.level}
-            </div>
+
 
             {userScore && (
                 <div className="absolute top-0 left-0 p-2 bg-yellow-400 rounded-br-3xl text-white font-bold shadow-md z-10 flex items-center gap-1">

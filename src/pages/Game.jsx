@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useSearchParams } from 'react-router-dom';
+import { useParams, Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Play, CheckCircle, XCircle, RefreshCw, Share2, Info } from 'lucide-react';
 import Layout from '../components/Layout';
-import { getSongData, generateBlanks } from '../utils/lyricsEngine';
+import { getSongData, generateBlanks, INITIAL_SONGS } from '../utils/lyricsEngine';
 import { checkAnswer } from '../utils/stringUtils';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,11 +12,13 @@ import { fetchTranslation } from '../utils/translationService';
 
 const Game = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const { currentUser } = useAuth();
     const [searchParams] = useSearchParams();
     const [song, setSong] = useState(null);
     const [lyrics, setLyrics] = useState([]);
     const [score, setScore] = useState(0);
+    const [difficulty, setDifficulty] = useState('Medium');
     const [isComplete, setIsComplete] = useState(false);
     const [hasValidated, setHasValidated] = useState(false);
     const [selectedWord, setSelectedWord] = useState(null); // For Context Modal
@@ -68,8 +70,8 @@ const Game = () => {
 
             if (data) {
                 setSong(data);
-                // Pass vocabulary to generator
-                const initialLyrics = generateBlanks(data.lyrics, data.level || "B1", data.vocabulary);
+                // Pass vocabulary to generator with difficulty
+                const initialLyrics = generateBlanks(data.lyrics, data.level || "B1", data.vocabulary, difficulty);
 
                 const lyricsWithState = initialLyrics.map(line => ({
                     ...line,
@@ -88,7 +90,7 @@ const Game = () => {
         };
 
         fetchSong();
-    }, [id]);
+    }, [id, difficulty]);
 
     // Validation Logic (Triggered manually or at end)
     const validateAnswers = () => {
@@ -163,6 +165,22 @@ const Game = () => {
         window.open(whatsappUrl, '_blank');
     };
 
+    const handleNextSong = () => {
+        // Collect all available song IDs
+        const allIds = INITIAL_SONGS.map(s => s.id.toString());
+        // Filter out current ID
+        const otherIds = allIds.filter(sid => sid !== id.toString());
+
+        if (otherIds.length > 0) {
+            // Pick random next song
+            const nextId = otherIds[Math.floor(Math.random() * otherIds.length)];
+            navigate(`/play/${nextId}`);
+            window.location.reload(); // Force reload to ensure clean state if needed
+        } else {
+            alert("No more songs available!");
+        }
+    };
+
     if (!song) return <div className="text-center p-10 font-bold text-bubble-600">Loading Song...</div>;
 
     const allBlanksFilled = lyrics.length > 0 && lyrics.every(line =>
@@ -202,15 +220,37 @@ const Game = () => {
                 {/* Lyrics Area */}
                 <div className="flex-1 lg:w-2/3 card-bubble overflow-hidden flex flex-col bg-white/95 backdrop-blur-md shadow-inner border-bubble-100 relative">
                     {/* Mobile Header inside Lyrics card */}
-                    <div className="lg:hidden flex items-center justify-between mb-4 border-b border-bubble-100 pb-2">
+                    <div className="lg:hidden flex items-center justify-between mb-2 border-b border-bubble-100 pb-2">
                         <Link to="/" className="text-bubble-600 p-1">
                             <ArrowLeft size={24} />
                         </Link>
-                        <h2 className="font-bold text-bubble-800 truncate">{song.title}</h2>
+                        <h2 className="font-bold text-bubble-800 truncate text-sm">{song.title}</h2>
                         <div className="font-bold text-bubble-600">{score} pts</div>
                     </div>
 
-                    <div className="overflow-y-auto flex-grow p-4 lg:p-6 space-y-6 scrollbar-thin scrollbar-thumb-bubble-300 scrollbar-track-transparent pb-64">
+                    {/* Difficulty Selector (Sticky Header) */}
+                    <div className="sticky top-0 bg-white/95 backdrop-blur z-20 px-4 py-2 border-b border-bubble-100 flex justify-center">
+                        <div className="flex bg-gray-100 p-1 rounded-xl">
+                            {['Easy', 'Medium', 'Hard'].map((level) => (
+                                <button
+                                    key={level}
+                                    onClick={() => !hasValidated && setDifficulty(level)}
+                                    className={`
+                                        px-4 py-1 text-sm font-bold rounded-lg transition-all
+                                        ${difficulty === level
+                                            ? 'bg-white text-bubble-600 shadow-sm'
+                                            : 'text-gray-500 hover:text-gray-700'}
+                                        ${hasValidated ? 'opacity-50 cursor-not-allowed' : ''}
+                                    `}
+                                    disabled={hasValidated}
+                                >
+                                    {level}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="overflow-y-auto flex-grow p-4 lg:p-6 space-y-6 scrollbar-thin scrollbar-thumb-bubble-300 scrollbar-track-transparent pb-96">
                         {lyrics.map((line, lineIndex) => (
                             <div key={lineIndex} className="text-lg md:text-2xl font-medium text-gray-700 leading-loose flex flex-wrap gap-x-2 items-baseline">
                                 {line.content.map((item, wordIndex) => {
@@ -256,39 +296,46 @@ const Game = () => {
                                                     )}
                                                 </div>
                                             )}
+                                            {/* Context/Translation Icon (Review Mode) */}
+                                            {showResult && (
+                                                <div
+                                                    className="absolute -top-6 -right-2 z-10 cursor-pointer text-bubble-500 hover:text-bubble-700 transition-colors bg-white rounded-full shadow-sm"
+                                                    title="See translation and context"
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
 
-                                            <div
-                                                className="absolute -top-6 -right-2 z-10 cursor-pointer text-bubble-500 hover:text-bubble-700 transition-colors bg-white rounded-full shadow-sm"
-                                                title="See translation and context"
-                                                onClick={async (e) => {
-                                                    e.stopPropagation();
+                                                        // If we have explicit context (static songs), use it
+                                                        if (item.context && item.context.translation) {
+                                                            setSelectedWord({
+                                                                word: item.word,
+                                                                translation: item.context.translation,
+                                                                context: item.context.context
+                                                            });
+                                                        } else {
+                                                            // For community songs, fetch dynamic translation
+                                                            setSelectedWord({
+                                                                word: item.word,
+                                                                loading: true
+                                                            });
 
-                                                    // If we have explicit context (static songs), use it
-                                                    if (item.context && item.context.translation) {
-                                                        setSelectedWord({
-                                                            word: item.word,
-                                                            translation: item.context.translation,
-                                                            context: item.context.context
-                                                        });
-                                                    } else {
-                                                        // For community songs, fetch dynamic translation
-                                                        setSelectedWord({
-                                                            word: item.word,
-                                                            loading: true
-                                                        });
+                                                            const [wordTranslation, sentenceTranslation] = await Promise.all([
+                                                                fetchTranslation(item.word),
+                                                                fetchTranslation(line.text)
+                                                            ]);
 
-                                                        const translation = await fetchTranslation(item.word);
+                                                            const teacherExplanation = `The word "${item.word}" means "${wordTranslation || '...'}" in English.\n\nIn this song, it is used in the phrase:\n"${line.text}"\n\n(Translation: "${sentenceTranslation || '...'}")`;
 
-                                                        setSelectedWord({
-                                                            word: item.word,
-                                                            translation: translation || "Translation unavailable",
-                                                            context: `Used in: "${line.text}"` // Use the line as context
-                                                        });
-                                                    }
-                                                }}
-                                            >
-                                                <Info size={16} />
-                                            </div>
+                                                            setSelectedWord({
+                                                                word: item.word,
+                                                                translation: wordTranslation || "Translation unavailable",
+                                                                context: teacherExplanation
+                                                            });
+                                                        }
+                                                    }}
+                                                >
+                                                    <Info size={16} />
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}
@@ -322,6 +369,9 @@ const Game = () => {
                                 <div className="flex gap-2 justify-center mt-3">
                                     <button onClick={() => window.location.reload()} className="flex items-center gap-2 bg-white px-4 py-2 rounded-full text-bubble-700 font-bold shadow-sm hover:bg-gray-50">
                                         <RefreshCw size={18} /> Retry
+                                    </button>
+                                    <button onClick={handleNextSong} className="flex items-center gap-2 bg-bubble-500 px-4 py-2 rounded-full text-white font-bold shadow-sm hover:bg-bubble-600">
+                                        <Play size={18} /> Next Song
                                     </button>
                                     <button onClick={handleShare} className="flex items-center gap-2 bg-accent-yellow px-4 py-2 rounded-full text-bubble-900 font-bold shadow-sm hover:bg-yellow-300">
                                         <Share2 size={18} /> Share
