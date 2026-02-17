@@ -25,7 +25,7 @@ const SongCard = ({ song, userScore }) => (
             {userScore && (
                 <div className="absolute top-0 left-0 p-2 bg-yellow-400 rounded-br-3xl text-white font-bold shadow-md z-10 flex items-center gap-1">
                     <Trophy size={16} />
-                    {userScore.highScore}
+                    {userScore.highScore}%
                 </div>
             )}
 

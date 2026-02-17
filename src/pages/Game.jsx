@@ -96,16 +96,23 @@ const Game = () => {
     const validateAnswers = () => {
         if (hasValidated) return;
 
-        let newScore = 0;
+        let correctCount = 0;
+        let totalBlanks = 0;
+
         const newLyrics = lyrics.map(line => ({
             ...line,
             content: line.content.map(word => {
                 if (!word.isBlank) return word;
+
+                totalBlanks++;
                 const isCorrect = checkAnswer(word.userValue, word.word);
-                if (isCorrect) newScore += 10;
+                if (isCorrect) correctCount++;
+
                 return { ...word, isCorrect };
             })
         }));
+
+        const newScore = totalBlanks > 0 ? Math.round((correctCount / totalBlanks) * 100) : 0;
 
         setLyrics(newLyrics);
         setScore(newScore);
@@ -160,7 +167,7 @@ const Game = () => {
 
     const handleShare = () => {
         const url = `${window.location.origin}/play/${id}?score=${score}&challenger=Friend`;
-        const text = `I scored ${score} points on ${song.title}! Can you beat me? play here: ${url}`;
+        const text = `I scored ${score}% on ${song.title}! Can you beat me? play here: ${url}`;
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(whatsappUrl, '_blank');
     };
@@ -225,7 +232,7 @@ const Game = () => {
                             <ArrowLeft size={24} />
                         </Link>
                         <h2 className="font-bold text-bubble-800 truncate text-sm">{song.title}</h2>
-                        <div className="font-bold text-bubble-600">{score} pts</div>
+                        <div className="font-bold text-bubble-600">{score}%</div>
                     </div>
 
                     {/* Difficulty Selector (Sticky Header) */}
@@ -365,7 +372,7 @@ const Game = () => {
                     {hasValidated && (
                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent z-30 flex flex-col items-center">
                             <div className="bg-bubble-100 p-4 rounded-2xl shadow-lg border-2 border-bubble-300 w-full max-w-md text-center animate-pop">
-                                <h3 className="text-xl font-bold text-bubble-900 mb-1">Score: {score}</h3>
+                                <h3 className="text-xl font-bold text-bubble-900 mb-1">Score: {score}%</h3>
                                 <div className="flex gap-2 justify-center mt-3">
                                     <button onClick={() => window.location.reload()} className="flex items-center gap-2 bg-white px-4 py-2 rounded-full text-bubble-700 font-bold shadow-sm hover:bg-gray-50">
                                         <RefreshCw size={18} /> Retry
