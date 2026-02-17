@@ -1,7 +1,8 @@
 {
   "name": "motmotmot",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "A web application to learn French lyrics with music.",
   "type": "module",
   "scripts": {
     "dev": "vite",
